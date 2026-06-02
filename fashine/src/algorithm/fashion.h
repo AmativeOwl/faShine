@@ -1,3 +1,12 @@
+enum Adjective
+{
+    BOLD,
+    SUBTLE,
+    TONAL,
+    ECLECTIC,
+    CLASSIC
+} Adjective;
+
 enum Type
 {
     TOP,
