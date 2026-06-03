@@ -10,11 +10,10 @@ enum Adjective
 enum Type
 {
     TOP,
-    BOTTOM,
-    SHOES
+    BOTTOM
 };
 
-enum OCCASION
+enum Occasion
 {
     CASUAL,
     SMART_CASUAL,
@@ -36,7 +35,7 @@ typedef struct FashionItem
     int id;
     enum Type fashionType;
     HSL colour;
-    enum OCCASION occasion;
+    enum Occasion occasion;
 } FashionItem;
 
 typedef struct Outfit
@@ -44,5 +43,5 @@ typedef struct Outfit
     double score;
     int *itemIds;
     int itemIdsSize;
-    enum OCCASION occasion;
+    enum Occasion occasion;
 } Outfit;

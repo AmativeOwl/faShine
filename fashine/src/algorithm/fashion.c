@@ -4,6 +4,7 @@
 
 #define NUM_OCCASION 6
 #define NUM_OCCASION_PAIRS 36
+#define MAX_CLOSET_SIZE 200
 
 typedef struct OccasionTable
 {
@@ -28,8 +29,19 @@ void insert(OccasionTable **table, int hash, double compatibilityScore)
     table[hash] = newOccasion;
 }
 
-double
-score_colour(FashionItem item1, FashionItem item2, enum Adjective adj)
+int cmp(const void *a, const void *b)
+{
+    Outfit *x = a;
+    Outfit *y = b;
+
+    if (x->score < y->score)
+        return 1;
+    if (x->score > y->score)
+        return -1;
+    return 0;
+}
+
+double score_colour(FashionItem item1, FashionItem item2, enum Adjective adj)
 {
     HSL item1Colour = item1.colour, item2Colour = item2.colour;
 
@@ -84,13 +96,51 @@ double score_occasion(FashionItem item1, FashionItem item2)
     if (table[key])
         return table[key]->compatibilityScore;
 
-    return 0;
+    return 0.0;
 }
 
-double score_pair(FashionItem item1, FashionItem item2, enum Adjective adj)
+double score_pair(FashionItem item1, FashionItem item2, enum Adjective adj, enum Occasion occasion)
 {
+    double colour_score = score_colour(item1, item2, adj);
+    double occasion_score = score_occasion(item1, item2);
+
+    return (occasion == CASUAL) ? (colour_score + occasion_score) / 2.0 : (colour_score * 0.3) + (occasion_score * 0.7);
 }
 
-Outfit *generate_outfits(FashionItem *closet, int closetSize, int n, enum Adjective adj)
+Outfit *generate_outfits(FashionItem *closet, int closetSize, int n, enum Adjective adj, enum Occasion occasion)
 {
+    if (closetSize > MAX_CLOSET_SIZE)
+        return NULL;
+
+    Outfit *outfit_matches = malloc(closetSize * closetSize * sizeof(Outfit));
+    int outfit_idx = 0;
+    outfit_matches[outfit_idx].occasion = occasion;
+
+    FashionItem top, bottom;
+    for (int i = 0; i < closetSize; i++)
+    {
+        if (closet[i].fashionType == TOP)
+        {
+            top = closet[i];
+            for (int j = 0; j < closetSize; j++)
+            {
+                if (closet[j].fashionType == BOTTOM)
+                {
+                    bottom = closet[j];
+
+                    outfit_matches[outfit_idx].itemIdsSize = 2;
+                    int *itemIds = malloc(2 * sizeof(int));
+                    itemIds[0] = top.id;
+                    itemIds[1] = bottom.id;
+
+                    outfit_matches[outfit_idx].score = score_pair(top, bottom, adj, occasion);
+                    outfit_matches[outfit_idx++].itemIds = itemIds;
+                }
+            }
+        }
+    }
+
+    qsort(outfit_matches, outfit_idx, sizeof(Outfit), cmp);
+
+    return outfit_matches;
 }
