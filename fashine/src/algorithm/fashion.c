@@ -41,16 +41,14 @@ int cmp(const void *a, const void *b)
     return 0;
 }
 
-double score_colour(FashionItem item1, FashionItem item2, enum Adjective adj)
+double score_colour(HSL item1Colour, HSL item2Colour, enum Adjective adj)
 {
-    HSL item1Colour = item1.colour, item2Colour = item2.colour;
-
     int item1Hue = item1Colour.hue, item2Hue = item2Colour.hue;
     float item1Sat = item1Colour.saturation, item2Sat = item2Colour.saturation;
     float item1Light = item1Colour.lightness, item2Light = item2Colour.lightness;
     float score;
 
-    float distHue = (fabs(item1Hue - item2Hue) < 360 - abs(item1Hue - item2Hue)) ? abs(item1Hue - item2Hue) : 360 - abs(item1Hue - item2Hue);
+    float distHue = (fabs(item1Hue - item2Hue) < 360 - fabs(item1Hue - item2Hue)) ? fabs(item1Hue - item2Hue) : 360 - fabs(item1Hue - item2Hue);
 
     switch (adj)
     {
@@ -76,10 +74,8 @@ double score_colour(FashionItem item1, FashionItem item2, enum Adjective adj)
     return score;
 }
 
-double score_occasion(FashionItem item1, FashionItem item2)
+double score_occasion(int item1Occasion, int item2Occasion)
 {
-    int item1Occasion = item1.occasion, item2Occasion = item2.occasion;
-
     if (item1Occasion == item2Occasion)
         return 1.0;
 
@@ -101,8 +97,8 @@ double score_occasion(FashionItem item1, FashionItem item2)
 
 double score_pair(FashionItem item1, FashionItem item2, enum Adjective adj, enum Occasion occasion)
 {
-    double colour_score = score_colour(item1, item2, adj);
-    double occasion_score = score_occasion(item1, item2);
+    double colour_score = score_colour(item1.colour, item2.colour, adj);
+    double occasion_score = score_occasion(item1.occasion, item2.occasion);
 
     return (occasion == CASUAL) ? (colour_score + occasion_score) / 2.0 : (colour_score * 0.3) + (occasion_score * 0.7);
 }

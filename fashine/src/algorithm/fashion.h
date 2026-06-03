@@ -5,7 +5,7 @@ enum Adjective
     TONAL,
     ECLECTIC,
     CLASSIC
-} Adjective;
+};
 
 enum Type
 {
