@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <fashion.h>
+#include <math.h>
+#include "fashion.h"
 
 #define NUM_OCCASION 6
 #define NUM_OCCASION_PAIRS 36
@@ -31,8 +32,8 @@ void insert(OccasionTable **table, int hash, double compatibilityScore)
 
 int cmp(const void *a, const void *b)
 {
-    Outfit *x = a;
-    Outfit *y = b;
+    const Outfit *x = (const Outfit *)a;
+    const Outfit *y = (const Outfit *)b;
 
     if (x->score < y->score)
         return 1;

@@ -1,3 +1,6 @@
+#ifndef FASHION_H
+#define FASHION_H
+
 enum Adjective
 {
     BOLD,
@@ -45,3 +48,12 @@ typedef struct Outfit
     int itemIdsSize;
     enum Occasion occasion;
 } Outfit;
+
+int hash(int item1Occasion, int item2Occasion);
+int cmp(const void *a, const void *b);
+double score_colour(HSL item1Colour, HSL item2Colour, enum Adjective adj);
+double score_occasion(int item1Occasion, int item2Occasion);
+double score_pair(FashionItem item1, FashionItem item2, enum Adjective adj, enum Occasion occasion);
+Outfit *generate_outfits(FashionItem *closet, int closetSize, int n, enum Adjective adj, enum Occasion occasion);
+
+#endif
