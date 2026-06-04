@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
         {5, TOP, {0, 0.9f, 0.5f}, CASUAL},
         {6, BOTTOM, {10, 0.9f, 0.5f}, CASUAL},
 
-        {7, TOP, {30, 0.05f, 0.9f}, CASUAL},
+        {7, TOP, {30, 0.05f, 0.9f}, BOLD},
         {8, BOTTOM, {0, 0.0f, 0.1f}, CASUAL},
 
         {9, TOP, {0, 0.9f, 0.5f}, CASUAL},

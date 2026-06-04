@@ -47,14 +47,16 @@ double score_colour(HSL item1Colour, HSL item2Colour, enum Adjective adj)
     int item1Hue = item1Colour.hue, item2Hue = item2Colour.hue;
     float item1Sat = item1Colour.saturation, item2Sat = item2Colour.saturation;
     float item1Light = item1Colour.lightness, item2Light = item2Colour.lightness;
-    float score;
+    float hue_score, sat_score, score;
 
-    float distHue = (fabs(item1Hue - item2Hue) < 360 - fabs(item1Hue - item2Hue)) ? fabs(item1Hue - item2Hue) : 360 - fabs(item1Hue - item2Hue);
+    float distHue = (abs(item1Hue - item2Hue) < 360 - abs(item1Hue - item2Hue)) ? abs(item1Hue - item2Hue) : 360 - abs(item1Hue - item2Hue);
 
     switch (adj)
     {
     case BOLD:
-        score = 1 - (fabs(180 - distHue) / 180);
+        hue_score = 1 - (fabs(180 - distHue) / 180);
+        sat_score = (item1Sat + item2Sat) / 2;
+        score = (hue_score + sat_score) / 2;
         break;
     case SUBTLE:
         score = 1 - (fabs(30 - distHue) / 30);
