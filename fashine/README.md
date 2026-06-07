@@ -1,16 +1,49 @@
-# React + Vite
+# faShine
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fashion outfit generator powered by a custom scoring algorithm written in C, compiled to WebAssembly via Emscripten, and created as a React hook.
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Given a closet of clothing items, faShine scores all possible top and bottom combinations using colour theory and occasion compatibility, returning the top matches ranked by a weighted score.
 
-## React Compiler
+The user queries the algorithm with an occasion (e.g. casual, formal) and a colour adjective (e.g. bold, subtle), and the algorithm returns the best outfit combinations for that context.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## The algorithm
 
-## Expanding the ESLint configuration
+Scoring is pairwise, where every top is scored against every bottom, and the results are sorted to return the top n matches.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Each pair is scored across two axes:
+
+**Colour score** is based on HSL colour theory. The adjective determines which theory applies:
+- Bold = complementary (hues ~180° apart)
+- Subtle = analogous (hues ~30° apart)
+- Eclectic = triadic (hues ~120° apart)
+- Tonal = monochromatic (same hue, varying lightness)
+- Classic = neutral (low average saturation)
+
+**Occasion score** is based on compatibility between item occasions. Same occasion scores 1.0, compatible pairs (e.g. casual + athletic, formal + evening) score 0.5, incompatible scores 0.0. Compatible pairs are stored in a chained hashtable keyed by a composite of the two occasion enum values.
+
+**Final score** is weighted average of colour and occasion scores. Equal weighting (0.5/0.5) for casual queries, heavier occasion weighting (0.7/0.3) for formal contexts.
+
+## Tech stack
+Algorithm:  C
+Build:      gcc (local testing) + Emscripten (WASM)
+Frontend:   React + Vite
+Hook:       useWasm.js — loads the WASM module and exposes generate_outfits
+
+## Build
+
+### Local test
+```bash
+cd src/algorithm
+mingw32-make
+./fashion_test
+```
+
+### Compile to WebAssembly
+```bash
+cd src/algorithm
+mingw32-make wasm
+```
+
+Outputs `fashion.js` and `fashion.wasm` to `public/`.
