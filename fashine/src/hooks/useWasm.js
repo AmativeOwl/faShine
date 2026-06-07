@@ -6,10 +6,18 @@ export default function useWasm() {
     const [generateOutfits, setGenerateOutfits] = useState(null)
 
     useEffect(() => {
-        Module['onRuntimeInitialized'] = () => {
+        if (Module.calledRun) {
+            const wrapped = Module.cwrap('generate_outfits', 'number', ['number', 'number', 'number', 'number', 'number'])
+            setGenerateOutfits(() => wrapped)
             setWasm(Module)
             setIsLoaded(true)
-            setGenerateOutfits(Module['_generate_outfits'])
+        } else {
+            Module['onRuntimeInitialized'] = () => {
+                const wrapped = Module.cwrap('generate_outfits', 'number', ['number', 'number', 'number', 'number', 'number'])
+                setGenerateOutfits(() => wrapped)
+                setWasm(Module)
+                setIsLoaded(true)
+            }
         }
     }, [])
 
