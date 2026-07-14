@@ -25,6 +25,7 @@ int hash(int item1Occasion, int item2Occasion)
 void insert(OccasionTable **table, int hash, double compatibilityScore)
 {
     OccasionTable *newOccasion = malloc(sizeof(OccasionTable));
+    newOccasion->hash = hash;
     newOccasion->compatibilityScore = compatibilityScore;
     newOccasion->next = table[hash];
     table[hash] = newOccasion;
