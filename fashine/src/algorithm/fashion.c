@@ -114,7 +114,6 @@ Outfit *generate_outfits(FashionItem *closet, int closetSize, int n, enum Adject
 
     Outfit *outfit_matches = malloc(closetSize * closetSize * sizeof(Outfit));
     int outfit_idx = 0;
-    outfit_matches[outfit_idx].occasion = occasion;
 
     FashionItem top, bottom;
     for (int i = 0; i < closetSize; i++)
@@ -133,6 +132,7 @@ Outfit *generate_outfits(FashionItem *closet, int closetSize, int n, enum Adject
                     itemIds[0] = top.id;
                     itemIds[1] = bottom.id;
 
+                    outfit_matches[outfit_idx].occasion = occasion;
                     outfit_matches[outfit_idx].score = score_pair(top, bottom, adj, occasion);
                     outfit_matches[outfit_idx++].itemIds = itemIds;
                 }
@@ -141,6 +141,11 @@ Outfit *generate_outfits(FashionItem *closet, int closetSize, int n, enum Adject
     }
 
     qsort(outfit_matches, outfit_idx, sizeof(Outfit), cmp);
+
+    if (n > outfit_idx)
+        n = outfit_idx;
+
+    outfit_matches = realloc(outfit_matches, n * sizeof(Outfit));
 
     return outfit_matches;
 }
