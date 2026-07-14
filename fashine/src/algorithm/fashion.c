@@ -7,6 +7,10 @@
 #define NUM_OCCASION_PAIRS 36
 #define MAX_CLOSET_SIZE 200
 
+/*
+ * Node in a simple separately-chained hash table mapping an occasion-pair
+ * to a hand-picked "compatibility score" (e.g. how well CASUAL pairs with ATHLETIC).
+ */
 typedef struct OccasionTable
 {
     int hash;
@@ -14,6 +18,9 @@ typedef struct OccasionTable
     struct OccasionTable *next;
 } OccasionTable;
 
+/*
+ * Combines two occasion enum values into a single unique table index.
+ */
 int hash(int item1Occasion, int item2Occasion)
 {
     int min = (item1Occasion < item2Occasion) ? item1Occasion : item2Occasion;
@@ -22,6 +29,10 @@ int hash(int item1Occasion, int item2Occasion)
     return abs(min) * NUM_OCCASION + abs(max);
 }
 
+/*
+ * Inserts a compatibility score into the hash table at the given key,
+ * prepending onto any existing chain at that slot.
+ */
 void insert(OccasionTable **table, int hash, double compatibilityScore)
 {
     OccasionTable *newOccasion = malloc(sizeof(OccasionTable));
@@ -31,6 +42,11 @@ void insert(OccasionTable **table, int hash, double compatibilityScore)
     table[hash] = newOccasion;
 }
 
+/*
+ * Sorts Outfit entries by score in descending order (highest score first)
+ * as the "best" outfits are positioned at the front of the array to be
+ * later truncated to the top n.
+ */
 int cmp(const void *a, const void *b)
 {
     const Outfit *x = (const Outfit *)a;
@@ -43,6 +59,41 @@ int cmp(const void *a, const void *b)
     return 0;
 }
 
+/*
+ * Scores how well two garment colours pair together, given a desired
+ * styling "adjective" (BOLD, SUBTLE, TONAL, ECLECTIC, CLASSIC).
+ *
+ * All formulas operate on HSL colour space:
+ *   hue        -- 0-360 degrees, position on the colour wheel
+ *   saturation -- 0.0-1.0, colour intensity/purity
+ *   lightness  -- 0.0-1.0, how light/dark the colour is
+ *
+ * distHue: the circular, shortest-path distance between the two hues on
+ * the 360-degree colour wheel.
+ *
+ * Each case implements a different classic colour-pairing rule of thumb:
+ *
+ * BOLD: rewards colours that are near-complementary (180 degrees
+ * apart on the wheel) AND highly saturated. hue_score peaks at 1.0
+ * when distHue is exactly 180; sat_score is the average saturation
+ * of both items. Final score averages the two as "bold" needs both
+ * high contrast and saturation.
+ *
+ * SUBTLE: rewards colours close together on the wheel (30 degrees apart,
+ * i.e. "analogous" colours). Score peaks at 1.0 when distHue == 30 and
+ * falls off the further away it gets.
+ *
+ * TONAL: ignores hue entirely; rewards similar LIGHTNESS between the two
+ * items (a "tonal" outfit varies shade, not colour). Score is the absolute
+ * difference in lightness values.
+ *
+ * ECLECTIC: rewards colours 120 degrees apart (i.e. a "triadic" colour
+ * relationship on the wheel), serving as a middle ground between BOLD's
+ * 180-degree contrast and SUBTLE's 30-degree closeness.
+ *
+ * CLASSIC: ignores hue, rewarding LOW saturation on both items (muted,
+ * desaturated, "classic" neutral tones).
+ */
 double score_colour(HSL item1Colour, HSL item2Colour, enum Adjective adj)
 {
     int item1Hue = item1Colour.hue, item2Hue = item2Colour.hue;
@@ -78,6 +129,15 @@ double score_colour(HSL item1Colour, HSL item2Colour, enum Adjective adj)
     return score;
 }
 
+/*
+ * Scores how well two occasions pair together.
+ *
+ * Same occasion (e.g. CASUAL + CASUAL) always scores a perfect 1.0.
+ * Otherwise, looks up a hand-picked compatibility score from the hash
+ * table (e.g. CASUAL + ATHLETIC = 0.5 are reasonably compatible but not
+ * identical). Any pair not explicitly inserted defaults to 0.0
+ * (incompatible).
+ */
 double score_occasion(int item1Occasion, int item2Occasion)
 {
     if (item1Occasion == item2Occasion)
@@ -99,6 +159,18 @@ double score_occasion(int item1Occasion, int item2Occasion)
     return 0.0;
 }
 
+/*
+ * Combines colour compatibility and occasion compatibility into one
+ * overall score for a top+bottom pairing.
+ *
+ * For CASUAL outfits: colour and occasion are weighted equally (50/50),
+ * since casual wear has more flexibility because style matters as much as
+ * strict occasion-matching.
+ *
+ * For any other occasion (SMART_CASUAL, CORPORATE, FORMAL, ATHLETIC,
+ * EVENING): occasion-appropriateness is weighted much more heavily (70%)
+ * than colour (30%).
+ */
 double score_pair(FashionItem item1, FashionItem item2, enum Adjective adj, enum Occasion occasion)
 {
     double colour_score = score_colour(item1.colour, item2.colour, adj);
@@ -107,6 +179,10 @@ double score_pair(FashionItem item1, FashionItem item2, enum Adjective adj, enum
     return (occasion == CASUAL) ? (colour_score + occasion_score) / 2.0 : (colour_score * 0.3) + (occasion_score * 0.7);
 }
 
+/*
+ * Generates every possible TOP + BOTTOM pairing from the closet, scores
+ * each one, sorts them best-to-worst, and returns the top n.
+ */
 Outfit *generate_outfits(FashionItem *closet, int closetSize, int n, enum Adjective adj, enum Occasion occasion)
 {
     if (closetSize > MAX_CLOSET_SIZE)
