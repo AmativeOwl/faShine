@@ -1,10 +1,8 @@
 import useWasm from './hooks/useWasm'
+import Closet from './components/Closet'
 
 function App() {
-    const { isLoaded, generateOutfits } = useWasm()
-    console.log('isLoaded:', isLoaded)
-    console.log('generateOutfits:', generateOutfits)
-    return <div>faShine</div>
+    return <Closet />
 }
 
 export default App

@@ -1,0 +1,86 @@
+.matches {
+    margin-top: 0;
+}
+
+.generate-btn {
+    padding: 0 26px;
+    height: 40px;
+    background: #17161a;
+    color: #faf8f5;
+    border: 1px solid #17161a;
+    border-radius: 0;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.generate-btn:hover {
+    opacity: 0.85;
+}
+
+.generate-btn:disabled {
+    background: transparent;
+    color: #a6a099;
+    border-color: #e6e2da;
+    cursor: not-allowed;
+}
+
+.outfit-card {
+    border: none;
+    border-top: 1px solid #e6e2da;
+    border-radius: 0;
+    padding: 20px 0;
+    margin-bottom: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    transition: border-color 0.15s;
+}
+
+.outfit-card:first-child {
+    border-top: 1px solid #17161a;
+}
+
+.outfit-rank {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: #a6a099;
+    min-width: 28px;
+}
+
+.outfit-score {
+    font-size: 10px;
+    color: #a6a099;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.outfit-score span {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    font-weight: 400;
+    color: #17161a;
+    letter-spacing: 0;
+    text-transform: none;
+    margin-left: 6px;
+}
+
+.outfit-items {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    align-items: center;
+}
+
+.outfit-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 1px;
+    border: 1px solid rgba(0,0,0,0.06);
+}
